@@ -1,6 +1,7 @@
 defmodule ExBanking do
   use Application
 
+  alias ExBanking.Validation
   alias ExBanking.{UserSupervisor}
 
   def start(_type, _args) do
@@ -39,6 +40,15 @@ defmodule ExBanking do
       GenServer.call(user_pid, {:withdraw, amount, currency})
     else
       [] -> {:error, :user_does_not_exist}
+    end
+  end
+
+  def send(from_user, to_user, amount, currency) do
+    with [{from_user_pid, to_user_pid}] <- Validation.existence_of_two_users(from_user, to_user),
+         {_, _amount_left} <- GenServer.call(from_user_pid, {:withdraw, amount, currency}) do
+      GenServer.call(to_user_pid, {:deposit, amount, currency})
+    else
+      {:error, reason} -> {:error, reason}
     end
   end
 end
