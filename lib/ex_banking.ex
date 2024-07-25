@@ -16,9 +16,9 @@ defmodule ExBanking do
     end
   end
 
-  def get_balance(user) do
+  def get_balance(user, currency) do
     with [{user_pid, _value}] <- Registry.lookup(Registry.ExBanking, user),
-         new_balance <- GenServer.call(user_pid, :get_balance) do
+         new_balance <- GenServer.call(user_pid, {:get_balance, currency}) do
       new_balance
     else
       [] -> {:error, :user_does_not_exist}
@@ -30,7 +30,15 @@ defmodule ExBanking do
     with [{user_pid, _value}] <- Registry.lookup(Registry.ExBanking, user) do
       GenServer.call(user_pid, {:deposit, amount, currency})
     else
-      [] -> {:error, :user_not_found}
+      [] -> {:error, :user_does_not_exist}
+    end
+  end
+
+  def withdraw(user, amount, currency) do
+    with [{user_pid, _value}] <- Registry.lookup(Registry.ExBanking, user) do
+      GenServer.call(user_pid, {:withdraw, amount, currency})
+    else
+      [] -> {:error, :user_does_not_exist}
     end
   end
 end
