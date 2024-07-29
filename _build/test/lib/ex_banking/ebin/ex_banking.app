@@ -1,0 +1,11 @@
+{application,ex_banking,
+             [{optional_applications,[]},
+              {applications,[kernel,stdlib,elixir,logger]},
+              {description,"ex_banking"},
+              {modules,['Elixir.ExBanking','Elixir.ExBanking.Supervisor',
+                        'Elixir.ExBanking.User',
+                        'Elixir.ExBanking.UserSupervisor',
+                        'Elixir.ExBanking.Validation']},
+              {registered,[]},
+              {vsn,"0.1.0"},
+              {mod,{'Elixir.ExBanking',[]}}]}.

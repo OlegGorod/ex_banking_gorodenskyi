@@ -24,10 +24,9 @@ defmodule ExBanking.User do
   def handle_call({:withdraw, amount, currency}, _, state) do
     with true <- Validation.check_enough_money(state, amount, currency) do
       new_state = Map.update(state, currency, amount, fn value -> value - amount end)
-      response = Validation.get_balance_validate(new_state, currency)
-      {:reply, response, new_state}
+      {:reply, new_state, new_state}
     else
-      false -> {:reply, {:error, :not_enough_money}, state}
+      false -> {:reply, :not_enough_money, state}
     end
   end
 end
