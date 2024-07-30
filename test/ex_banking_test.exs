@@ -61,4 +61,15 @@ defmodule ExBankingTest do
     create_user("Mark")
     Enum.each(1..10, fn _ -> spawn(fn -> assert {:ok, _} = deposit("Mark", 100, "$") end) end)
   end
+
+  test "returns too_many_requests_to_user error after over 10 deposit operations at once" do
+    create_user("Mark")
+
+    await_state =
+      1..11
+      |> Enum.map(fn _ -> Task.async(fn -> ExBanking.deposit("Mark", 100, "USD") end) end)
+      |> Enum.map(fn value -> Task.await(value) end)
+
+    assert Enum.find(await_state, fn value -> value == {:error, :too_many_requests_to_user} end)
+  end
 end
