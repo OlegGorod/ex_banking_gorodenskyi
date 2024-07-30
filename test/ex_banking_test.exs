@@ -56,4 +56,9 @@ defmodule ExBankingTest do
     deposit("Mark", 100, "$")
     assert send("Mark", "Andrew", 100, "$") == {:error, :receiver_does_not_exist}
   end
+
+  test "allows up to 10 concurrent deposit operations" do
+    create_user("Mark")
+    Enum.each(1..10, fn _ -> spawn(fn -> assert {:ok, _} = deposit("Mark", 100, "$") end) end)
+  end
 end
