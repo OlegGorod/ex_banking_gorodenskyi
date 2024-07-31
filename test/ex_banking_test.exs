@@ -33,6 +33,13 @@ defmodule ExBankingTest do
     assert deposit("Mark", 100, "$") == {:ok, 100}
   end
 
+  test "put negative deposit or withdraw negative amount" do
+    create_user("Mark")
+    deposit("Mark", 100, "$")
+    assert deposit("Mark", -200, "$") == {:error, :wrong_arguments}
+    assert withdraw("Mark", -200, "$") == {:error, :wrong_arguments}
+  end
+
   test "withdraw an amount over than has user" do
     create_user("Mark")
     deposit("Mark", 100, "$")
@@ -67,7 +74,19 @@ defmodule ExBankingTest do
 
     await_state =
       1..11
-      |> Enum.map(fn _ -> Task.async(fn -> ExBanking.deposit("Mark", 100, "USD") end) end)
+      |> Enum.map(fn _ -> Task.async(fn -> ExBanking.deposit("Mark", 100, "$") end) end)
+      |> Enum.map(fn value -> Task.await(value) end)
+
+    assert Enum.find(await_state, fn value -> value == {:error, :too_many_requests_to_user} end)
+  end
+
+  test "returns too_many_requests_to_user error after over 10 withdraw operations at once" do
+    create_user("Mark")
+    ExBanking.deposit("Mark", 10000, "$")
+
+    await_state =
+      1..15
+      |> Enum.map(fn _ -> Task.async(fn -> ExBanking.withdraw("Mark", 100, "$") end) end)
       |> Enum.map(fn value -> Task.await(value) end)
 
     assert Enum.find(await_state, fn value -> value == {:error, :too_many_requests_to_user} end)
