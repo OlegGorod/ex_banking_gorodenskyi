@@ -3,7 +3,7 @@
               {applications,[kernel,stdlib,elixir,logger]},
               {description,"ex_banking"},
               {modules,['Elixir.ExBanking','Elixir.ExBanking.Supervisor',
-                        'Elixir.ExBanking.User',
+                        'Elixir.ExBanking.TypesError','Elixir.ExBanking.User',
                         'Elixir.ExBanking.UserOperations',
                         'Elixir.ExBanking.UserSupervisor',
                         'Elixir.ExBanking.Validation']},

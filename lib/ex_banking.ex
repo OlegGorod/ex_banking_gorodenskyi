@@ -1,13 +1,14 @@
 defmodule ExBanking do
   use Application
 
-  alias ExBanking.Validation
-  alias ExBanking.{UserSupervisor}
+  alias ExBanking.TypesError
+  alias ExBanking.{UserSupervisor, Validation}
 
   def start(_type, _args) do
     ExBanking.Supervisor.start_link([])
   end
 
+  @spec create_user(user :: String.t()) :: :ok | TypesError.error_tuple()
   def create_user(user) do
     with true <- Validation.validate_args?(user),
          [] <- Registry.lookup(Registry.ExBanking, user) do
@@ -19,6 +20,8 @@ defmodule ExBanking do
     end
   end
 
+  @spec get_balance(user :: String.t(), currency :: String.t()) ::
+          {:ok, balance :: number} | TypesError.error_tuple()
   def get_balance(user, currency) do
     with true <- Validation.validate_args?(user, currency),
          [{user_pid, _value}] <- Registry.lookup(Registry.ExBanking, user),
@@ -32,6 +35,8 @@ defmodule ExBanking do
     end
   end
 
+  @spec deposit(user :: String.t(), amount :: number, currency :: String.t()) ::
+          {:ok, new_balance :: number} | TypesError.error_tuple()
   def deposit(user, amount, currency) do
     with true <- Validation.validate_args?(user, amount, currency),
          [{user_pid, _value}] <- Registry.lookup(Registry.ExBanking, user),
@@ -45,6 +50,8 @@ defmodule ExBanking do
     end
   end
 
+  @spec withdraw(user :: String.t(), amount :: number, currency :: String.t()) ::
+          {:ok, new_balance :: number} | TypesError.error_tuple()
   def withdraw(user, amount, currency) do
     with true <- Validation.validate_args?(user, amount, currency),
          [{user_pid, _value}] <- Registry.lookup(Registry.ExBanking, user),
@@ -60,6 +67,14 @@ defmodule ExBanking do
     end
   end
 
+  @spec send(
+          from_user :: String.t(),
+          to_user :: String.t(),
+          amount :: number,
+          currency :: String.t()
+        ) ::
+          {:ok, from_user_balance :: number, to_user_balance :: number}
+          | TypesError.error_tuple()
   def send(from_user, to_user, amount, currency) do
     with true <- Validation.validate_args?(from_user, to_user, amount, currency),
          [{from_user_pid, to_user_pid}] <- Validation.existence_of_two_users(from_user, to_user),
