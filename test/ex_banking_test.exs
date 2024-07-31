@@ -50,6 +50,12 @@ defmodule ExBankingTest do
     assert withdraw("Mark", 200, "$") == {:error, :user_does_not_exist}
   end
 
+  test "deposition 2 decimal precision of money amount for any currency" do
+    create_user("Mark")
+    assert deposit("Mark", 100.0000, "$") == {:ok, 100.0}
+    assert withdraw("Mark", 35.1234, "$") == {:ok, 65.0}
+  end
+
   test "send amount from one user to another" do
     create_user("Mark")
     create_user("Andrew")

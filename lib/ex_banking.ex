@@ -71,6 +71,7 @@ defmodule ExBanking do
       false -> {:error, :wrong_arguments}
       {:error, reason} -> {:error, reason}
       :not_enough_money -> {:error, :not_enough_money}
+      :too_many_requests_to_user -> {:error, :too_many_requests_to_user}
     end
   end
 end

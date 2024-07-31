@@ -1,5 +1,6 @@
 defmodule ExBanking.User do
   alias ExBanking.Validation
+  alias ExBanking.UserOperations
   use GenServer
 
   def start_link(user_name) do
@@ -27,7 +28,7 @@ defmodule ExBanking.User do
     new_state =
       state
       |> Map.update!("operations_count", &(&1 + 1))
-      |> Map.update(currency, amount, fn value -> value + amount end)
+      |> Map.update(currency, amount, fn value -> UserOperations.add(value, amount) end)
 
     response = Validation.get_balance_validate(new_state, currency)
 
@@ -40,7 +41,7 @@ defmodule ExBanking.User do
       new_state =
         state
         |> Map.update!("operations_count", &(&1 + 1))
-        |> Map.update(currency, amount, fn value -> value - amount end)
+        |> Map.update(currency, amount, fn value -> UserOperations.substract(value, amount) end)
 
       {:reply, new_state, new_state}
     else
